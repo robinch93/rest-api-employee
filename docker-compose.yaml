@@ -1,0 +1,45 @@
+version: '3.4'
+
+services:
+  node:
+    image: node:slim
+    container_name: restapi
+    command: sh -c "npm i -g nodemon && npm install && npm run start-dev"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    networks:
+      - rest
+    ports: 
+      - 3000:3000
+    expose:
+      - 3000
+    depends_on: 
+      - mysql
+
+  mysql:
+    image: mysql:8
+    container_name: database
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DB_NAME
+      MYSQL_USER: $MYSQL_USERNAME
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - empdata:/var/lib/mysql
+    networks:
+      - rest
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+
+networks:
+  rest:
+
+volumes:
+  empdata:
